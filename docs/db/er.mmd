@@ -1,0 +1,150 @@
+erDiagram
+    users ||--o{ user_roles : "has"
+    roles ||--o{ user_roles : "assigned"
+    tool_categories ||--o{ tools : "categorizes"
+    warehouses ||--o{ tools : "stores"
+    users ||--o{ rental_orders : "places"
+    rental_orders ||--o{ rental_order_items : "contains"
+    tools ||--o{ rental_order_items : "rented"
+    rental_orders ||--o| pickup_codes : "generates"
+    tools ||--o{ maintenance_records : "maintained"
+    rental_order_items ||--o{ maintenance_records : "related"
+
+    users {
+        bigint id
+        varchar username
+        varchar password_hash
+        varchar phone
+        varchar real_name
+        tinyint status
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    roles {
+        bigint id
+        varchar code
+        varchar name
+        varchar description
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    user_roles {
+        bigint id
+        bigint user_id
+        bigint role_id
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    tool_categories {
+        bigint id
+        varchar name
+        bigint parent_id
+        varchar description
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    warehouses {
+        bigint id
+        varchar name
+        varchar address
+        varchar contact_name
+        varchar contact_phone
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    tools {
+        bigint id
+        bigint category_id
+        bigint warehouse_id
+        varchar name
+        varchar asset_code
+        varchar model_spec
+        decimal rental_price
+        decimal deposit
+        tinyint status
+        smallint stock_total
+        smallint stock_available
+        varchar description
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    rental_orders {
+        bigint id
+        bigint user_id
+        tinyint status
+        decimal total_amount
+        datetime approved_at
+        bigint approved_by
+        datetime picked_up_at
+        datetime return_applied_at
+        datetime completed_at
+        bigint pickup_code_id
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    rental_order_items {
+        bigint id
+        bigint order_id
+        bigint tool_id
+        bigint warehouse_id
+        smallint quantity
+        int rental_days
+        decimal unit_price
+        decimal amount
+        tinyint status
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    pickup_codes {
+        bigint id
+        bigint order_id
+        varchar code
+        datetime expire_at
+        datetime used_at
+        tinyint status
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
+
+    maintenance_records {
+        bigint id
+        bigint tool_id
+        bigint order_item_id
+        tinyint type
+        tinyint result
+        varchar title
+        text description
+        bigint handled_by
+        datetime scheduled_at
+        datetime completed_at
+        bigint created_by
+        bigint updated_by
+        datetime created_at
+        datetime updated_at
+    }
