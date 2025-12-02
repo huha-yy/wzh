@@ -3,6 +3,7 @@ package com.community.tools.order;
 import com.community.tools.common.ApiResponse;
 import com.community.tools.order.entity.PickupCode;
 import com.community.tools.order.entity.RentalOrder;
+import com.community.tools.order.entity.RentalOrderItem;
 import com.community.tools.order.service.OrderService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
