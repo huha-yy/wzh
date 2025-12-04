@@ -6,6 +6,7 @@ export default function Login() {
   const login = useAuthStore(s => s.login)
   const register = useAuthStore(s => s.register)
   const nav = useNavigate()
+  const [form] = Form.useForm()
   const onFinish = async (v: any) => {
     try {
       await login(v.username, v.password)
@@ -24,12 +25,16 @@ export default function Login() {
   }
   return (
     <Card title="登录" style={{ maxWidth: 400, margin: '40px auto' }}>
-      <Form onFinish={onFinish} layout="vertical">
-        <Form.Item name="username" label="用户名" rules={[{ required: true }]}> <Input /> </Form.Item>
-        <Form.Item name="password" label="密码" rules={[{ required: true }]}> <Input.Password /> </Form.Item>
+      <Form form={form} onFinish={onFinish} layout="vertical">
+        <Form.Item name="username" label="用户名" rules={[{ required: true }]}>
+          <Input />
+        </Form.Item>
+        <Form.Item name="password" label="密码" rules={[{ required: true }]}>
+          <Input.Password />
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit" style={{ marginRight: 8 }}>登录</Button>
-          <Button onClick={() => onRegister((document.querySelector('form') as any).__formValues || {})}>注册</Button>
+          <Button onClick={() => { form.validateFields().then(onRegister).catch(() => {}) }}>注册</Button>
         </Form.Item>
       </Form>
     </Card>

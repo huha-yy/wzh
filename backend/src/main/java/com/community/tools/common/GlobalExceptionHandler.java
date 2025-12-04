@@ -16,7 +16,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class)
     public ApiResponse<Void> handleAll(Exception e) {
-        return ApiResponse.error(e.getMessage());
+        String msg = e.getMessage();
+        if (msg == null || msg.isEmpty()) msg = e.getClass().getSimpleName();
+        return ApiResponse.error(msg);
     }
 }
 

@@ -8,8 +8,19 @@ export default function Tools() {
   const [data, setData] = useState<Tool[]>([])
   const [keyword, setKeyword] = useState('')
   const fetch = async () => {
-    const res = await http.get('/tools', { params: { page: 1, size: 20, keyword } })
-    setData(res.data.data.records || [])
+    try {
+      const res = await http.get('/tools', { params: { page: 1, size: 20, keyword } })
+      // 检查响应数据结构
+      if (res.data && res.data.data && res.data.data.records) {
+        setData(res.data.data.records)
+      } else {
+        console.error('API响应数据结构不正确:', res.data)
+        setData([])
+      }
+    } catch (error) {
+      console.error('获取工具列表失败:', error)
+      setData([])
+    }
   }
   useEffect(() => { fetch() }, [])
   return (
