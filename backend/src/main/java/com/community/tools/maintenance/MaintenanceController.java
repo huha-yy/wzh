@@ -5,11 +5,13 @@ import com.community.tools.maintenance.entity.MaintenanceRecord;
 import com.community.tools.maintenance.service.MaintenanceService;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/maintenance")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
 public class MaintenanceController {
     private final MaintenanceService service;
 

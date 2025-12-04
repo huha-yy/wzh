@@ -2,6 +2,7 @@ package com.community.tools.system;
 
 import com.community.tools.common.ApiResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/system")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN')")
 public class SystemController {
     private final ConfigService configService;
 

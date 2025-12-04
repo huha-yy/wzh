@@ -1,11 +1,13 @@
 import { Button, Card, Form, InputNumber, message, Select } from 'antd'
 import http from '../api/http'
 import { useEffect, useState } from 'react'
+import { useAuthStore } from '../store/auth'
 
 type Tool = { id: number; name: string; rentalPrice: number; warehouseId: number }
 
 export default function NewOrder() {
   const [tools, setTools] = useState<Tool[]>([])
+  const userProfile = useAuthStore(s => s.userProfile)
   useEffect(() => { load() }, [])
   const load = async () => {
     const res = await http.get('/tools', { params: { page: 1, size: 100 } })
@@ -15,7 +17,7 @@ export default function NewOrder() {
     try {
       const tool = tools.find(t => t.id === v.toolId)
       const unitPrice = tool?.rentalPrice || 0
-      await http.post('/orders', { userId: 1, toolId: v.toolId, warehouseId: tool?.warehouseId, quantity: v.quantity, rentalDays: v.days, unitPrice })
+      await http.post('/orders', { toolId: v.toolId, warehouseId: tool?.warehouseId, quantity: v.quantity, rentalDays: v.days, unitPrice })
       message.success('下单成功，待审核')
     } catch (e: any) {
       message.error(e.message || '下单失败')

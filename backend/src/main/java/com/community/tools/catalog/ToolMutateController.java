@@ -5,11 +5,13 @@ import com.community.tools.catalog.mapper.ToolMapper;
 import com.community.tools.common.ApiResponse;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/tools")
 @RequiredArgsConstructor
+@PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
 public class ToolMutateController {
     private final ToolMapper mapper;
 
