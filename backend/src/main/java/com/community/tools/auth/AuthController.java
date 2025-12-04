@@ -19,7 +19,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ApiResponse<Long> register(@Valid @RequestBody RegisterRequest req) {
-        User u = userService.register(req.getUsername(), req.getPassword());
+        User u = userService.register(req.getUsername(), req.getPassword(), req.getRealName(), req.getPhone());
         return ApiResponse.ok(u.getId());
     }
 

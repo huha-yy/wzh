@@ -27,8 +27,12 @@ export default function NewOrder() {
         <Form.Item name="toolId" label="工具" rules={[{ required: true }]}>
           <Select options={tools.map(t => ({ value: t.id, label: `${t.name} / ¥${t.rentalPrice}` }))} />
         </Form.Item>
-        <Form.Item name="quantity" label="数量" rules={[{ required: true }]}> <InputNumber min={1} /> </Form.Item>
-        <Form.Item name="days" label="天数" rules={[{ required: true }]}> <InputNumber min={1} /> </Form.Item>
+        <Form.Item name="quantity" label="数量" rules={[{ required: true }]}>
+          <InputNumber min={1} />
+        </Form.Item>
+        <Form.Item name="days" label="天数" rules={[{ required: true }]}>
+          <InputNumber min={1} />
+        </Form.Item>
         <Form.Item>
           <Button type="primary" htmlType="submit">提交订单</Button>
         </Form.Item>

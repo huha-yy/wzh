@@ -16,9 +16,15 @@ export default function SystemConfig() {
   return (
     <Card title="系统参数配置">
       <Form form={form} layout="vertical" style={{ maxWidth: 400 }}>
-        <Form.Item name="jwtExpireMinutes" label="JWT过期分钟"> <InputNumber min={10} /> </Form.Item>
-        <Form.Item name="defaultPageSize" label="分页默认条数"> <InputNumber min={10} /> </Form.Item>
-        <Form.Item name="exportLimit" label="导出上限"> <InputNumber min={100} /> </Form.Item>
+        <Form.Item name="jwtExpireMinutes" label="JWT过期分钟">
+          <InputNumber min={10} />
+        </Form.Item>
+        <Form.Item name="defaultPageSize" label="分页默认条数">
+          <InputNumber min={10} />
+        </Form.Item>
+        <Form.Item name="exportLimit" label="导出上限">
+          <InputNumber min={100} />
+        </Form.Item>
         <Button type="primary" onClick={save}>保存</Button>
       </Form>
     </Card>

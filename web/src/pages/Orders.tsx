@@ -65,10 +65,18 @@ export default function Orders() {
   return (
     <Card title="订单列表" extra={<Button onClick={exportExcel}>导出Excel</Button>}>
       <Form form={form} layout="inline" onFinish={() => fetch(1)}>
-        <Form.Item name="range" label="日期范围"> <DatePicker.RangePicker showTime /> </Form.Item>
-        <Form.Item name="status" label="状态"> <Select allowClear style={{ width: 150 }} options={[0,1,2,3,4,5,6].map(v=>({value:v,label:statusMap[v]}))} /> </Form.Item>
-        <Form.Item name="userId" label="用户ID"> <InputNumber min={1} /> </Form.Item>
-        <Form.Item> <Button type="primary" htmlType="submit">查询</Button> </Form.Item>
+        <Form.Item name="range" label="日期范围">
+          <DatePicker.RangePicker showTime />
+        </Form.Item>
+        <Form.Item name="status" label="状态">
+          <Select allowClear style={{ width: 150 }} options={[0,1,2,3,4,5,6].map(v=>({value:v,label:statusMap[v]}))} />
+        </Form.Item>
+        <Form.Item name="userId" label="用户ID">
+          <InputNumber min={1} />
+        </Form.Item>
+        <Form.Item>
+          <Button type="primary" htmlType="submit">查询</Button>
+        </Form.Item>
       </Form>
       <Table rowKey="id" loading={loading} dataSource={data} pagination={{ current: page, pageSize: 20, total, onChange: fetch }}
              columns={[{ title: '订单ID', dataIndex: 'id' }, { title: '用户ID', dataIndex: 'userId' }, { title: '状态', dataIndex: 'status', render: (s:number) => <Tag>{statusMap[s]}</Tag> }, { title: '金额', dataIndex: 'totalAmount' }, { title: '创建时间', dataIndex: 'createdAt' }, { title: '操作', render: (_, r) => <Button onClick={() => openDetail(r.id)}>详情</Button> }]} />

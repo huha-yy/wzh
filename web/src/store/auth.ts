@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import http from '../api/http'
 
-type State = { token: string | null; login: (u: string, p: string) => Promise<void>; register: (u: string, p: string) => Promise<void>; logout: () => void }
+type State = { token: string | null; login: (u: string, p: string) => Promise<void>; register: (u: string, p: string, r: string, ph?: string) => Promise<void>; logout: () => void }
 
 export const useAuthStore = create<State>(set => ({
   token: localStorage.getItem('authToken') || null,
@@ -11,8 +11,8 @@ export const useAuthStore = create<State>(set => ({
     set({ token })
     localStorage.setItem('authToken', token)
   },
-  async register(username, password) {
-    await http.post('/auth/register', { username, password })
+  async register(username, password, realName, phone) {
+    await http.post('/auth/register', { username, password, realName, phone })
   },
   logout() {
     set({ token: null })

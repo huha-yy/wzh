@@ -5,7 +5,10 @@ import App from './App'
 import 'antd/dist/reset.css'
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <BrowserRouter>
+  <BrowserRouter future={{
+    v7_startTransition: true,
+    v7_relativeSplatPath: true
+  }}>
     <App />
   </BrowserRouter>
 )
