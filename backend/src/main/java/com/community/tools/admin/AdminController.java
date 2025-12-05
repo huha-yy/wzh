@@ -65,10 +65,10 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    public ApiResponse<Page<UserVO>> users(@RequestParam(defaultValue = "1") int page,
-                                           @RequestParam(defaultValue = "20") int size,
-                                           @RequestParam(required = false) String username,
-                                           @RequestParam(required = false) Integer status) {
+    public ApiResponse<Page<UserVO>> users(@RequestParam(name = "page", defaultValue = "1") int page,
+                                           @RequestParam(name = "size", defaultValue = "20") int size,
+                                           @RequestParam(name = "username", required = false) String username,
+                                           @RequestParam(name = "status", required = false) Integer status) {
         QueryWrapper<User> q = new QueryWrapper<>();
         if (username != null && !username.isEmpty()) q.like("username", username);
         if (status != null) q.eq("status", status);
@@ -98,7 +98,7 @@ public class AdminController {
     }
 
     @PostMapping("/users/{id}/status")
-    public ApiResponse<Void> setStatus(@PathVariable Long id, @RequestParam Integer status) {
+    public ApiResponse<Void> setStatus(@PathVariable Long id, @RequestParam(name = "status") Integer status) {
         User u = userMapper.selectById(id);
         if (u == null) throw new RuntimeException("user not found");
         u.setStatus(status);
@@ -131,16 +131,16 @@ public class AdminController {
     @PostMapping("/users/{id}")
     public ApiResponse<Void> updateUser(@PathVariable Long id, @RequestBody EditUserReq req) {
         User u = userMapper.selectById(id);
-        if (u == null) throw new RuntimeException("user not found");
+        if (u == null) throw new RuntimeException("用户不存在");
         if (req.username != null && !req.username.isEmpty() && !req.username.equals(u.getUsername())) {
             User exists = userMapper.selectOne(new QueryWrapper<User>().eq("username", req.username));
-            if (exists != null && !exists.getId().equals(id)) throw new RuntimeException("username exists");
+            if (exists != null && !exists.getId().equals(id)) throw new RuntimeException("用户名已被使用");
             u.setUsername(req.username);
         }
         if (req.phone != null && !req.phone.isEmpty()) {
             if (u.getPhone() == null || !req.phone.equals(u.getPhone())) {
                 User phoneExists = userMapper.selectOne(new QueryWrapper<User>().eq("phone", req.phone));
-                if (phoneExists != null && !phoneExists.getId().equals(id)) throw new RuntimeException("phone exists");
+                if (phoneExists != null && !phoneExists.getId().equals(id)) throw new RuntimeException("手机号已被使用");
                 u.setPhone(req.phone);
             }
         } else {

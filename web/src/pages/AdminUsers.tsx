@@ -58,7 +58,11 @@ export default function AdminUsers() {
     try {
       const vals = await editForm.validateFields()
       setSaving(true)
-      await http.post(`/admin/users/${editing!.id}`, vals)
+      const res = await http.post(`/admin/users/${editing!.id}`, vals)
+      if (res.data && typeof res.data.code !== 'undefined' && res.data.code !== 0) {
+        message.error(res.data.message || '保存失败')
+        return
+      }
       message.success('保存成功')
       setEditing(null)
       fetch(page)
@@ -108,7 +112,7 @@ export default function AdminUsers() {
           <Form.Item name="realName" label="姓名">
             <Input placeholder="请输入姓名" />
           </Form.Item>
-          <Form.Item name="phone" label="电话">
+          <Form.Item name="phone" label="电话" rules={[{ validator: (_, v) => { if (!v) return Promise.resolve(); return /^1[3-9]\d{9}$/.test(v) ? Promise.resolve() : Promise.reject(new Error('请输入有效手机号')); } }]}>
             <Input placeholder="请输入电话" />
           </Form.Item>
         </Form>

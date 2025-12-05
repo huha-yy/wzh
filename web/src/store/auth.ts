@@ -26,11 +26,12 @@ export const useAuthStore = create<State>((set, get) => ({
   userProfile: null,
   async login(username, password) {
     const res = await http.post('/auth/login', { username, password })
+    if (!res.data || res.data.code !== 0) {
+      throw new Error(res.data?.message || '登录失败')
+    }
     const token = res.data.data
     set({ token })
     localStorage.setItem('authToken', token)
-    
-    // 登录成功后获取用户信息
     await get().fetchUserProfile()
   },
   async register(username, password, realName, phone) {

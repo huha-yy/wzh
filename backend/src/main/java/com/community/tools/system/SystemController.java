@@ -31,9 +31,9 @@ public class SystemController {
     }
 
     @GetMapping("/logs")
-    public ApiResponse<List<String>> logs(@RequestParam(defaultValue = "1") int page,
-                                          @RequestParam(defaultValue = "50") int size,
-                                          @RequestParam(required = false) String keyword) throws Exception {
+    public ApiResponse<List<String>> logs(@RequestParam(name = "page", defaultValue = "1") int page,
+                                          @RequestParam(name = "size", defaultValue = "50") int size,
+                                          @RequestParam(name = "keyword", required = false) String keyword) throws Exception {
         Path path = Path.of("logs/app.log");
         if (!Files.exists(path)) return ApiResponse.ok(java.util.Collections.emptyList());
         List<String> all = Files.readAllLines(path);

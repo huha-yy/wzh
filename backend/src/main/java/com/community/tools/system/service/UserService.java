@@ -55,7 +55,8 @@ public class UserService {
 
     public User validate(String username, String rawPassword) {
         User u = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
-        if (u == null) throw new RuntimeException("user not found");
+        if (u == null) throw new RuntimeException("用户不存在");
+        if (u.getStatus() != null && u.getStatus() != 1) throw new RuntimeException("账号已禁用");
         if (!passwordEncoder.matches(rawPassword, u.getPasswordHash())) throw new RuntimeException("invalid password");
         return u;
     }

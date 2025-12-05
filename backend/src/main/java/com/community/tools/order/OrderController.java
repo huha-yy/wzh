@@ -34,7 +34,7 @@ public class OrderController {
 
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
-    public ApiResponse<PickupCode> approve(@PathVariable Long id, @RequestParam Long adminId) {
+    public ApiResponse<PickupCode> approve(@PathVariable Long id, @RequestParam(name = "adminId") Long adminId) {
         return ApiResponse.ok(orderService.approveAndGenerateCode(id, adminId));
     }
 
@@ -54,19 +54,19 @@ public class OrderController {
     @PostMapping("/{id}/pickup-codes/batch")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
     public ApiResponse<java.util.List<PickupCode>> batch(@PathVariable Long id,
-                                                         @RequestParam int count,
-                                                         @RequestParam(defaultValue = "2") int expireDays) {
+                                                         @RequestParam(name = "count") int count,
+                                                         @RequestParam(name = "expireDays", defaultValue = "2") int expireDays) {
         return ApiResponse.ok(orderService.batchGenerate(id, count, expireDays));
     }
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER') or hasRole('RESIDENT')")
-    public ApiResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<RentalOrder>> query(@RequestParam(defaultValue = "1") int page,
-                                                                                                    @RequestParam(defaultValue = "20") int size,
-                                                                                                    @RequestParam(required = false) String startDate,
-                                                                                                    @RequestParam(required = false) String endDate,
-                                                                                                    @RequestParam(required = false) Integer status,
-                                                                                                    @RequestParam(required = false) Long userId) {
+    public ApiResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<RentalOrder>> query(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                                                    @RequestParam(name = "size", defaultValue = "20") int size,
+                                                                                                    @RequestParam(name = "startDate", required = false) String startDate,
+                                                                                                    @RequestParam(name = "endDate", required = false) String endDate,
+                                                                                                    @RequestParam(name = "status", required = false) Integer status,
+                                                                                                    @RequestParam(name = "userId", required = false) Long userId) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         boolean isAdminOrMaintainer = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
                 .anyMatch(a -> "ROLE_ADMIN".equals(a) || "ROLE_MAINTAINER".equals(a));
@@ -87,10 +87,10 @@ public class OrderController {
 
     @GetMapping("/export")
     @PreAuthorize("hasRole('ADMIN')")
-    public org.springframework.http.ResponseEntity<byte[]> export(@RequestParam(required = false) String startDate,
-                                                                  @RequestParam(required = false) String endDate,
-                                                                  @RequestParam(required = false) Integer status,
-                                                                  @RequestParam(required = false) Long userId) {
+    public org.springframework.http.ResponseEntity<byte[]> export(@RequestParam(name = "startDate", required = false) String startDate,
+                                                                  @RequestParam(name = "endDate", required = false) String endDate,
+                                                                  @RequestParam(name = "status", required = false) Integer status,
+                                                                  @RequestParam(name = "userId", required = false) Long userId) {
         byte[] bytes = orderService.export(startDate, endDate, status, userId);
         org.springframework.http.HttpHeaders headers = new org.springframework.http.HttpHeaders();
         headers.set(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=orders.xlsx");

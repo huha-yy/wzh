@@ -17,7 +17,7 @@ public class WarehouseController {
     private final WarehouseMapper mapper;
 
     @GetMapping
-    public ApiResponse<List<Warehouse>> list(@RequestParam(required = false) String name) {
+    public ApiResponse<List<Warehouse>> list(@RequestParam(name = "name", required = false) String name) {
         QueryWrapper<Warehouse> q = new QueryWrapper<>();
         if (name != null && !name.isEmpty()) q.like("name", name);
         return ApiResponse.ok(mapper.selectList(q));

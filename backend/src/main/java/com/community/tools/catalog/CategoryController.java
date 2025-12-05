@@ -17,7 +17,7 @@ public class CategoryController {
     private final ToolCategoryMapper mapper;
 
     @GetMapping
-    public ApiResponse<List<ToolCategory>> list(@RequestParam(required = false) Long parentId) {
+    public ApiResponse<List<ToolCategory>> list(@RequestParam(name = "parentId", required = false) Long parentId) {
         QueryWrapper<ToolCategory> q = new QueryWrapper<>();
         if (parentId != null) q.eq("parent_id", parentId);
         return ApiResponse.ok(mapper.selectList(q));

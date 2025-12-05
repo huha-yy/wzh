@@ -49,7 +49,7 @@ public class JwtAuthFilter extends OncePerRequestFilter {
                 } catch (NumberFormatException ignore) {
                     user = userMapper.selectOne(new QueryWrapper<User>().eq("username", subject));
                 }
-                if (user != null) {
+                if (user != null && (user.getStatus() != null && user.getStatus() == 1)) {
                     List<Long> roleIds = userRoleMapper.selectList(
                         new QueryWrapper<com.community.tools.system.entity.UserRole>().eq("user_id", user.getId())
                     ).stream().map(ur -> ur.getRoleId()).collect(Collectors.toList());

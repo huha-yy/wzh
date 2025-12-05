@@ -14,11 +14,11 @@ public class ToolController {
     private final ToolService toolService;
 
     @GetMapping
-    public ApiResponse<Page<Tool>> list(@RequestParam(defaultValue = "1") int page,
-                                        @RequestParam(defaultValue = "10") int size,
-                                        @RequestParam(required = false) Long categoryId,
-                                        @RequestParam(required = false) Long warehouseId,
-                                        @RequestParam(required = false) String keyword) {
+    public ApiResponse<Page<Tool>> list(@RequestParam(name = "page", defaultValue = "1") int page,
+                                        @RequestParam(name = "size", defaultValue = "10") int size,
+                                        @RequestParam(name = "categoryId", required = false) Long categoryId,
+                                        @RequestParam(name = "warehouseId", required = false) Long warehouseId,
+                                        @RequestParam(name = "keyword", required = false) String keyword) {
         return ApiResponse.ok(toolService.list(page, size, categoryId, warehouseId, keyword));
     }
 }
