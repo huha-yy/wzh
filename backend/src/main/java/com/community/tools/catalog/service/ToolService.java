@@ -18,5 +18,15 @@ public class ToolService {
         if (keyword != null && !keyword.isEmpty()) q.like("name", keyword);
         return toolMapper.selectPage(Page.of(page, size), q);
     }
+
+    public Page<Tool> lowStock(int page, int size, Integer threshold, Long categoryId, Long warehouseId) {
+        int th = threshold == null ? 5 : threshold;
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<Tool> q = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        q.le("stock_available", th).eq("status", 1);
+        if (categoryId != null) q.eq("category_id", categoryId);
+        if (warehouseId != null) q.eq("warehouse_id", warehouseId);
+        q.orderByAsc("stock_available");
+        return toolMapper.selectPage(Page.of(page, size), q);
+    }
 }
 

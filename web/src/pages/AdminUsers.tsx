@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Button, Card, Form, Input, Select, Table, Tag, message, Modal } from 'antd'
+import { Button, Card, Form, Input, Select, Table, Tag, message, Modal, Popconfirm } from 'antd'
 import http from '../api/http'
 
 type Role = { id: number; code: string; name: string }
@@ -86,19 +86,28 @@ export default function AdminUsers() {
                { title: '姓名', dataIndex: 'realName' },
                { title: '电话', dataIndex: 'phone' },
                { title: '状态', dataIndex: 'status', render: (s:number) => <Tag color={s===1?'green':'gray'}>{s===1?'启用':'禁用'}</Tag> },
-               { title: '角色', dataIndex: 'roles', render: (rs:string[], r:UserItem) => (
-                 <div>
-                   {rs.map(code => <Tag key={code} closable onClose={e=>{e.preventDefault(); revokeRole(r, code)}}>{code}</Tag>)}
-                   <Select placeholder="分配角色" style={{ width: 160 }} onChange={val => assignRole(r, val)} options={roles.map(ro=>({value:ro.id,label:ro.name}))} />
-                 </div>
-               ) },
+              { title: '角色', dataIndex: 'roles', render: (rs:string[], r:UserItem) => (
+                <div>
+                  {rs.map(code => (
+                    <span key={code} style={{ marginRight: 8 }}>
+                      <Tag>{code}</Tag>
+                      <Popconfirm title="确认撤销该角色？" onConfirm={()=>revokeRole(r, code)} okText="撤销" cancelText="取消">
+                        <Button size="small" type="link">撤销</Button>
+                      </Popconfirm>
+                    </span>
+                  ))}
+                  <Select placeholder="分配角色" style={{ width: 160 }} onChange={val => assignRole(r, val)} options={roles.map(ro=>({value:ro.id,label:ro.name}))} />
+                </div>
+              ) },
                { title: '操作', render: (_:any, r:UserItem) => (
                  <div>
-                   {r.status===1 ? (
-                     <Button size="small" onClick={() => setStatus(r, 0)}>禁用</Button>
-                   ) : (
-                     <Button size="small" type="primary" onClick={() => setStatus(r, 1)}>启用</Button>
-                   )}
+                  {r.status===1 ? (
+                    <Popconfirm title="确认禁用该用户？" onConfirm={() => setStatus(r, 0)} okText="禁用" cancelText="取消">
+                      <Button size="small">禁用</Button>
+                    </Popconfirm>
+                  ) : (
+                    <Button size="small" type="primary" onClick={() => setStatus(r, 1)}>启用</Button>
+                  )}
                     <Button size="small" style={{ marginLeft: 8 }} onClick={() => openEdit(r)}>编辑</Button>
                  </div>
                ) }

@@ -32,9 +32,9 @@ public class OrderService {
     @Transactional
     public RentalOrder createOrder(Long userId, Long toolId, Long warehouseId, int quantity, int rentalDays, BigDecimal unitPrice) {
         Tool tool = toolMapper.selectById(toolId);
-        if (tool == null || tool.getStockAvailable() == null || tool.getStockAvailable() < quantity) throw new RuntimeException("stock not enough");
-        tool.setStockAvailable(tool.getStockAvailable() - quantity);
-        toolMapper.updateById(tool);
+        if (tool == null) throw new RuntimeException("tool not found");
+        if (tool.getStatus() == null || tool.getStatus() != 1) throw new RuntimeException("tool not available");
+        if (tool.getStockAvailable() == null || tool.getStockAvailable() < quantity) throw new RuntimeException("stock not enough");
 
         RentalOrder order = new RentalOrder();
         order.setUserId(userId);
@@ -75,15 +75,55 @@ public class OrderService {
     }
 
     @Transactional
-    public void usePickupCode(String code) {
+    public RentalOrder usePickupCode(String code) {
         PickupCode pc = pickupCodeMapper.selectOne(new QueryWrapper<PickupCode>().eq("code", code));
         if (pc == null || pc.getStatus() != 0) throw new RuntimeException("code invalid");
+        if (pc.getExpireAt() != null && java.time.LocalDateTime.now().isAfter(pc.getExpireAt())) {
+            throw new RuntimeException("code expired");
+        }
         pc.setStatus(1);
         pc.setUsedAt(LocalDateTime.now());
         pickupCodeMapper.updateById(pc);
         RentalOrder order = orderMapper.selectById(pc.getOrderId());
+        if (order == null) throw new RuntimeException("order not found");
+        if (order.getStatus() == null || order.getStatus() != 1) {
+            throw new RuntimeException("order not approved");
+        }
+        java.util.List<RentalOrderItem> items = itemMapper.selectList(new QueryWrapper<RentalOrderItem>().eq("order_id", order.getId()));
+        for (RentalOrderItem it : items) {
+            Tool t = toolMapper.selectById(it.getToolId());
+            if (t == null) throw new RuntimeException("tool not found");
+            if (t.getStockAvailable() == null || t.getStockAvailable() < it.getQuantity()) throw new RuntimeException("stock not enough");
+            t.setStockAvailable(t.getStockAvailable() - it.getQuantity());
+            toolMapper.updateById(t);
+            it.setStatus(1);
+            itemMapper.updateById(it);
+        }
         order.setStatus(2);
         order.setPickedUpAt(LocalDateTime.now());
+        orderMapper.updateById(order);
+        return order;
+    }
+
+    @Transactional
+    public void applyReturn(Long orderId) {
+        RentalOrder order = orderMapper.selectById(orderId);
+        if (order == null) throw new RuntimeException("order not found");
+        order.setStatus(3);
+        order.setReturnAppliedAt(LocalDateTime.now());
+        orderMapper.updateById(order);
+        java.util.List<RentalOrderItem> items = itemMapper.selectList(new QueryWrapper<RentalOrderItem>().eq("order_id", orderId));
+        for (RentalOrderItem it : items) {
+            it.setStatus(2);
+            itemMapper.updateById(it);
+        }
+    }
+
+    @Transactional
+    public void cancel(Long orderId) {
+        RentalOrder order = orderMapper.selectById(orderId);
+        if (order == null) throw new RuntimeException("order not found");
+        order.setStatus(6);
         orderMapper.updateById(order);
     }
 

@@ -7,10 +7,12 @@ import Register from './pages/Register'
 import Tools from './pages/Tools'
 import NewOrder from './pages/NewOrder'
 import Orders from './pages/Orders'
-import PickupCodes from './pages/PickupCodes'
+import PickupUse from './pages/PickupUse'
 import { useAuthStore } from './store/auth'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
+import AdminWarehouses from './pages/AdminWarehouses'
+import AdminCategories from './pages/AdminCategories'
 import SystemConfig from './pages/SystemConfig'
 import Logs from './pages/Logs'
 import ProtectedRoute from './components/ProtectedRoute'
@@ -38,8 +40,11 @@ export default function App() {
     { key: 'tools', icon: <ToolOutlined />, label: <Link to="/tools">工具目录</Link>, roles: ['admin', 'resident', 'maintainer'] },
     { key: 'order', icon: <ShoppingCartOutlined />, label: <Link to="/order/new">下单</Link>, roles: ['admin', 'resident'] },
     { key: 'orders', icon: <FileTextOutlined />, label: <Link to="/orders">订单</Link>, roles: ['admin', 'resident', 'maintainer'] },
+    { key: 'pickup', icon: <FileTextOutlined />, label: <Link to="/pickup/use">领取交付</Link>, roles: ['admin','maintainer'] },
     { key: 'admin', icon: <UserOutlined />, label: <Link to="/admin">管理</Link>, roles: ['admin'] },
     { key: 'users', icon: <UserOutlined />, label: <Link to="/admin/users">用户管理</Link>, roles: ['admin'] },
+    { key: 'warehouses', icon: <ToolOutlined />, label: <Link to="/admin/warehouses">仓库管理</Link>, roles: ['admin'] },
+    { key: 'categories', icon: <ToolOutlined />, label: <Link to="/admin/categories">分类管理</Link>, roles: ['admin'] },
     { key: 'config', icon: <SettingOutlined />, label: <Link to="/config">参数</Link>, roles: ['admin'] },
     { key: 'logs', icon: <FileTextOutlined />, label: <Link to="/logs">日志</Link>, roles: ['admin'] }
   ]
@@ -53,6 +58,7 @@ export default function App() {
       '/tools': '工具目录',
       '/order/new': '下单',
       '/orders': '订单',
+      '/pickup/use': '领取交付',
       '/admin': '管理',
       '/config': '参数',
       '/logs': '日志'
@@ -128,9 +134,13 @@ export default function App() {
             <Route path="/tools" element={<ProtectedRoute requiredRoles={["admin","resident","maintainer"]}><Tools /></ProtectedRoute>} />
             <Route path="/order/new" element={<ProtectedRoute requiredRoles={["admin","resident"]}><NewOrder /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute requiredRoles={["admin","resident","maintainer"]}><Orders /></ProtectedRoute>} />
-            <Route path="/orders/:id/codes" element={<ProtectedRoute requiredRoles={["admin","resident","maintainer"]}><PickupCodes /></ProtectedRoute>} />
-            <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
-            <Route path="/admin/users" element={<ProtectedRoute requiredRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
+            
+            <Route path="/pickup/use" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><PickupUse /></ProtectedRoute>} />
+            <Route path="/pickup/use/:orderId" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><PickupUse /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
+          <Route path="/admin/users" element={<ProtectedRoute requiredRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
+          <Route path="/admin/warehouses" element={<ProtectedRoute requiredRoles={["admin"]}><AdminWarehouses /></ProtectedRoute>} />
+          <Route path="/admin/categories" element={<ProtectedRoute requiredRoles={["admin"]}><AdminCategories /></ProtectedRoute>} />
             <Route path="/config" element={<ProtectedRoute requiredRoles={["admin"]}><SystemConfig /></ProtectedRoute>} />
             <Route path="/logs" element={<ProtectedRoute requiredRoles={["admin"]}><Logs /></ProtectedRoute>} />
             <Route path="*" element={<Navigate to="/tools" replace />} />

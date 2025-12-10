@@ -34,20 +34,31 @@ public class OrderController {
 
     @PostMapping("/{id}/approve")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
-    public ApiResponse<PickupCode> approve(@PathVariable Long id, @RequestParam(name = "adminId") Long adminId) {
-        return ApiResponse.ok(orderService.approveAndGenerateCode(id, adminId));
+    public ApiResponse<PickupCode> approve(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User u = userService.getUserByUsername(auth.getName());
+        return ApiResponse.ok(orderService.approveAndGenerateCode(id, u.getId()));
     }
 
     @PostMapping("/pickup/{code}/use")
-    @PreAuthorize("isAuthenticated()")
-    public ApiResponse<Void> use(@PathVariable String code) {
-        orderService.usePickupCode(code);
-        return ApiResponse.ok(null);
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
+    public ApiResponse<RentalOrder> use(@PathVariable String code) {
+        return ApiResponse.ok(orderService.usePickupCode(code));
     }
 
     @GetMapping("/{id}/pickup-codes")
     @PreAuthorize("isAuthenticated()")
     public ApiResponse<java.util.List<PickupCode>> listCodes(@PathVariable Long id) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAdminOrMaintainer = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .anyMatch(a -> "ROLE_ADMIN".equals(a) || "ROLE_MAINTAINER".equals(a));
+        boolean isResident = auth.getAuthorities().stream().map(GrantedAuthority::getAuthority)
+                .anyMatch(a -> "ROLE_RESIDENT".equals(a));
+        if (isResident && !isAdminOrMaintainer) {
+            User u = userService.getUserByUsername(auth.getName());
+            RentalOrder o = orderService.detail(id).getOrder();
+            if (o == null || !o.getUserId().equals(u.getId())) throw new RuntimeException("forbidden");
+        }
         return ApiResponse.ok(orderService.detail(id).getCodes());
     }
 
@@ -98,6 +109,20 @@ public class OrderController {
         return new org.springframework.http.ResponseEntity<>(bytes, headers, org.springframework.http.HttpStatus.OK);
     }
 
+    @PostMapping("/{id}/apply-return")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESIDENT')")
+    public ApiResponse<Void> applyReturn(@PathVariable Long id) {
+        orderService.applyReturn(id);
+        return ApiResponse.ok(null);
+    }
+
+    @PostMapping("/{id}/cancel")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('RESIDENT')")
+    public ApiResponse<Void> cancel(@PathVariable Long id) {
+        orderService.cancel(id);
+        return ApiResponse.ok(null);
+    }
+
     @Data
     public static class CreateOrderReq {
         public Long userId;
@@ -114,4 +139,6 @@ public class OrderController {
         public java.util.List<RentalOrderItem> items;
         public java.util.List<PickupCode> codes;
     }
+
+    
 }
