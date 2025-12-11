@@ -93,5 +93,12 @@ public class UserService {
     public User getUserByUsername(String username) {
         return userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
     }
+
+    /**
+     * 根据用户ID获取用户信息
+     */
+    public User getUserById(Long id) {
+        return userMapper.selectById(id);
+    }
 }
 

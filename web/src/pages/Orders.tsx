@@ -3,7 +3,7 @@ import http from '../api/http'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
 
-type Order = { id: number; userId: number; status: number; totalAmount: number; createdAt: string }
+type Order = { id: number; userId: number; username?: string; realName?: string; status: number; totalAmount: number; createdAt: string }
 type OrderItem = { id: number; toolId: number; quantity: number; rentalDays: number; amount: number }
 type PickupCode = { id: number; code: string; status: number; expireAt: string; usedAt?: string }
 
@@ -31,7 +31,7 @@ export default function Orders() {
     const res = await http.get('/orders', {
       params: {
         page: p,
-        size: 20,
+        size: 10,
         startDate: start ? start.toISOString().slice(0, 19) : undefined,
         endDate: end ? end.toISOString().slice(0, 19) : undefined,
         status: vals.status,
@@ -118,6 +118,10 @@ export default function Orders() {
       if (scheduleNote && scheduleNote.trim().length > 0) params.note = scheduleNote.trim()
       await http.post(`/maintenance/orders/${scheduleOrderId}/schedule`, null, { params })
       message.success('已安排验收')
+      // 刷新详情抽屉（若当前正打开该订单），以展示验收操作按钮
+      if (detail && detail.order && detail.order.id === scheduleOrderId) {
+        await openDetail(scheduleOrderId)
+      }
       setScheduleOpen(false)
       setScheduleOrderId(null)
       setScheduleInspectorId(null)
@@ -168,10 +172,11 @@ export default function Orders() {
           <Button type="primary" htmlType="submit">查询</Button>
         </Form.Item>
       </Form>
-      <Table rowKey="id" loading={loading} dataSource={data} pagination={{ current: page, pageSize: 20, total, onChange: fetch }}
+      <Table rowKey="id" loading={loading} dataSource={data} pagination={{ current: page, pageSize: 10, total, onChange: fetch }}
              columns={[
                { title: '订单ID', dataIndex: 'id' },
                { title: '用户ID', dataIndex: 'userId' },
+               { title: '用户名', render: (_:any, r:Order) => r.realName || r.username || '-' },
                { title: '状态', dataIndex: 'status', render: (s:number) => <Tag>{statusMap[s]}</Tag> },
                { title: '金额', dataIndex: 'totalAmount' },
                { title: '创建时间', dataIndex: 'createdAt' },
@@ -232,7 +237,13 @@ export default function Orders() {
               columns={[
                 { title: '领取码', dataIndex: 'code' },
                 { title: '有效期', dataIndex: 'expireAt' },
-                { title: '状态', dataIndex: 'status', render: (s:number) => <Tag color={s===1?'green':s===0?'blue':'red'}>{s===1?'已使用':s===0?'未使用':'过期'}</Tag> },
+                { title: '状态', render: (_:any, r:PickupCode) => {
+                  const expired = r.expireAt && new Date(r.expireAt).getTime() < Date.now()
+                  const used = r.status === 1
+                  const color = used ? 'green' : expired ? 'red' : 'blue'
+                  const text = used ? '已使用' : expired ? '已过期' : '未使用'
+                  return <Tag color={color}>{text}</Tag>
+                } },
                 { title: '使用时间', dataIndex: 'usedAt' }
               ]}
             />
@@ -255,7 +266,7 @@ export default function Orders() {
           </div>
         )}
       </Drawer>
-      <Modal title="安排验收" open={scheduleOpen} onOk={doSchedule} onCancel={() => setScheduleOpen(false)} destroyOnClose>
+      <Modal title="安排验收" open={scheduleOpen} onOk={doSchedule} onCancel={() => setScheduleOpen(false)} destroyOnHidden>
         <Form layout="vertical">
           <Form.Item label="验收时间">
             <DatePicker showTime style={{ width: '100%' }} value={scheduleAt} onChange={v => setScheduleAt(v)} />

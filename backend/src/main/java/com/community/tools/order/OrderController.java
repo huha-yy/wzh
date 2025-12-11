@@ -62,6 +62,22 @@ public class OrderController {
         return ApiResponse.ok(orderService.detail(id).getCodes());
     }
 
+    @GetMapping("/pickup-codes/unused")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
+    public ApiResponse<java.util.List<PickupCode>> listUnused() {
+        return ApiResponse.ok(orderService.listUnusedCodes());
+    }
+
+    @GetMapping("/pickup-codes")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
+    public ApiResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<PickupCode>> listAll(@RequestParam(name = "page", defaultValue = "1") int page,
+                                                                                                       @RequestParam(name = "size", defaultValue = "10") int size,
+                                                                                                       @RequestParam(name = "status", required = false) Integer status,
+                                                                                                       @RequestParam(name = "orderId", required = false) Long orderId,
+                                                                                                       @RequestParam(name = "onlyValid", required = false) Boolean onlyValid) {
+        return ApiResponse.ok(orderService.pageCodes(page, size, status, orderId, onlyValid));
+    }
+
     @PostMapping("/{id}/pickup-codes/batch")
     @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER')")
     public ApiResponse<java.util.List<PickupCode>> batch(@PathVariable Long id,
@@ -72,7 +88,7 @@ public class OrderController {
 
     @GetMapping
     @PreAuthorize("hasRole('ADMIN') or hasRole('MAINTAINER') or hasRole('RESIDENT')")
-    public ApiResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<RentalOrder>> query(@RequestParam(name = "page", defaultValue = "1") int page,
+    public ApiResponse<com.baomidou.mybatisplus.extension.plugins.pagination.Page<OrderListVO>> query(@RequestParam(name = "page", defaultValue = "1") int page,
                                                                                                     @RequestParam(name = "size", defaultValue = "20") int size,
                                                                                                     @RequestParam(name = "startDate", required = false) String startDate,
                                                                                                     @RequestParam(name = "endDate", required = false) String endDate,
@@ -87,7 +103,27 @@ public class OrderController {
             User u = userService.getUserByUsername(auth.getName());
             userId = u != null ? u.getId() : null;
         }
-        return ApiResponse.ok(orderService.query(page, size, startDate, endDate, status, userId));
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<RentalOrder> p = orderService.query(page, size, startDate, endDate, status, userId);
+        com.baomidou.mybatisplus.extension.plugins.pagination.Page<OrderListVO> result = new com.baomidou.mybatisplus.extension.plugins.pagination.Page<>(p.getCurrent(), p.getSize(), p.getTotal());
+        java.util.List<OrderListVO> vos = new java.util.ArrayList<>();
+        for (RentalOrder o : p.getRecords()) {
+            OrderListVO vo = new OrderListVO();
+            vo.setId(o.getId());
+            vo.setUserId(o.getUserId());
+            vo.setStatus(o.getStatus());
+            vo.setTotalAmount(o.getTotalAmount());
+            vo.setCreatedAt(o.getCreatedAt());
+            if (o.getUserId() != null) {
+                com.community.tools.system.entity.User u = userService.getUserById(o.getUserId());
+                if (u != null) {
+                    vo.setUsername(u.getUsername());
+                    vo.setRealName(u.getRealName());
+                }
+            }
+            vos.add(vo);
+        }
+        result.setRecords(vos);
+        return ApiResponse.ok(result);
     }
 
     @GetMapping("/{id}")
@@ -138,6 +174,17 @@ public class OrderController {
         public RentalOrder order;
         public java.util.List<RentalOrderItem> items;
         public java.util.List<PickupCode> codes;
+    }
+
+    @lombok.Data
+    public static class OrderListVO {
+        private Long id;
+        private Long userId;
+        private String username;
+        private String realName;
+        private Integer status;
+        private java.math.BigDecimal totalAmount;
+        private java.time.LocalDateTime createdAt;
     }
 
     

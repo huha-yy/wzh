@@ -32,13 +32,13 @@ public class MaintenanceController {
     }
 
     @PostMapping("/orders/{orderId}/close")
-    public ApiResponse<Void> close(@PathVariable Long orderId) {
+    public ApiResponse<Void> close(@PathVariable("orderId") Long orderId) {
         service.closeOrder(orderId);
         return ApiResponse.ok(null);
     }
 
     @PostMapping("/orders/{orderId}/schedule")
-    public ApiResponse<Void> schedule(@PathVariable Long orderId,
+    public ApiResponse<Void> schedule(@PathVariable("orderId") Long orderId,
                                       @RequestParam(name = "scheduledAt", required = false) String scheduledAt,
                                       @RequestParam(name = "inspectorId", required = false) Long inspectorId,
                                       @RequestParam(name = "note", required = false) String note) {

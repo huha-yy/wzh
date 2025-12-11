@@ -175,10 +175,10 @@ export default function Tools() {
     <Card title="工具目录" extra={<Input placeholder="关键词" value={keyword} onChange={e => setKeyword(e.target.value)} onPressEnter={fetch} /> }>
       {hasAnyRole(['admin','maintainer']) && (
         <div style={{ marginBottom: 12 }}>
-          <Button size="small" onClick={() => batchStatus(1)}>批量上架</Button>
+          <Button size="small" type="primary" onClick={openAdd}>新增工具</Button>
+          <Button size="small" style={{ marginLeft: 8 }} onClick={() => batchStatus(1)}>批量上架</Button>
           <Button size="small" style={{ marginLeft: 8 }} onClick={() => batchStatus(0)}>批量下架</Button>
           <Button size="small" style={{ marginLeft: 8 }} onClick={openBulkAdjust}>批量库存调整</Button>
-          <Button size="small" style={{ marginLeft: 8 }} type="primary" onClick={openAdd}>新增工具</Button>
           <Button size="small" style={{ marginLeft: 8 }} onClick={openImport}>批量导入(Excel)</Button>
         </div>
       )}

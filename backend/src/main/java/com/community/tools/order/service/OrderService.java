@@ -197,4 +197,21 @@ public class OrderService {
         orderMapper.updateById(order);
         return list;
     }
+
+    public java.util.List<PickupCode> listUnusedCodes() {
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<PickupCode> q = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<PickupCode>()
+                .eq("status", 0)
+                .gt("expire_at", LocalDateTime.now())
+                .orderByAsc("expire_at");
+        return pickupCodeMapper.selectList(q);
+    }
+
+    public com.baomidou.mybatisplus.extension.plugins.pagination.Page<PickupCode> pageCodes(int page, int size, Integer status, Long orderId, Boolean onlyValid) {
+        com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<PickupCode> q = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+        if (status != null) q.eq("status", status);
+        if (orderId != null) q.eq("order_id", orderId);
+        if (onlyValid != null && onlyValid) q.gt("expire_at", LocalDateTime.now());
+        q.orderByDesc("created_at");
+        return pickupCodeMapper.selectPage(com.baomidou.mybatisplus.extension.plugins.pagination.Page.of(page, size), q);
+    }
 }
