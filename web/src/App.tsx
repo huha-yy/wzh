@@ -93,7 +93,7 @@ export default function App() {
   
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Layout.Sider width={250} theme="dark">
+      <Layout.Sider width={250} theme="dark" style={{ position: 'fixed', left: 0, top: 0, height: '100vh', zIndex: 1000 }}>
         <div style={{ 
           height: '64px', 
           display: 'flex', 
@@ -114,7 +114,7 @@ export default function App() {
           defaultSelectedKeys={[location.pathname === '/order/new' ? 'order' : location.pathname.substring(1)]}
         />
       </Layout.Sider>
-      <Layout>
+      <Layout style={{ marginLeft: 250 }}>
         <Layout.Header style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 

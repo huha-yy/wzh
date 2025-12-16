@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Form, Input, message, Checkbox, Typography, ConfigProvider } from 'antd';
+import { Button, Form, Input, Checkbox, Typography, App as AntdApp, ConfigProvider } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuthStore } from '../store/auth';
 import { useNavigate, Link } from 'react-router-dom';
@@ -10,6 +10,7 @@ export default function Login() {
   const login = useAuthStore(s => s.login);
   const nav = useNavigate();
   const [form] = Form.useForm();
+  const { message } = AntdApp.useApp();
 
   const onFinish = async (v: any) => {
     try {
@@ -26,6 +27,8 @@ export default function Login() {
       theme={{
         token: {
           colorPrimary: '#001529',
+          colorPrimaryHover: '#00223a',
+          colorPrimaryActive: '#000f1f',
         },
       }}
     >

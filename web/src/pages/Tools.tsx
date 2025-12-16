@@ -42,7 +42,13 @@ export default function Tools() {
       setData([])
     }
   }
-  useEffect(() => { fetch(); loadWarehouses(); loadCategories() }, [])
+  useEffect(() => { 
+    fetch(); 
+    loadWarehouses(); 
+    loadCategories();
+    const timer = setInterval(fetch, 5000);
+    return () => { clearInterval(timer) }
+  }, [])
   const loadWarehouses = async () => {
     try {
       const res = await http.get('/warehouses')
@@ -154,7 +160,12 @@ export default function Tools() {
     { title: '分类', dataIndex: 'categoryId', render: (cid?:number) => (cid ? (categories.find(c => c.id === cid)?.name || '-') : '-') },
     { title: '日租价', dataIndex: 'rentalPrice' },
     { title: '押金', dataIndex: 'deposit' },
-    { title: '状态', dataIndex: 'status', render: (s:number) => <Tag color={s===1?'green':'red'}>{s===1?'上架':'下架'}</Tag> },
+    // { title: '状态', dataIndex: 'status', render: (s:number) => <Tag color={s===1?'green':'red'}>{s===1?'上架':'下架'}</Tag> },
+    { title: '使用状态', render: (_:any, r:Tool) => {
+      const label = (r.status!==1) ? '维修中' : ((r.stockAvailable ?? 0) > 0 ? '可借' : '已借完')
+      const color = label==='可借' ? 'green' : (label==='已借完' ? 'orange' : 'blue')
+      return <Tag color={color}>{label}</Tag>
+    }},
     { title: '总库存', dataIndex: 'stockTotal' },
     { title: '可用库存', dataIndex: 'stockAvailable' }
   ]
