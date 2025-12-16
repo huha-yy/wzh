@@ -26,6 +26,18 @@ public class MaintenanceService {
     }
 
     @Transactional
+    public void deleteRecord(Long id) {
+        if (id == null) {
+            throw new RuntimeException("记录ID不能为空");
+        }
+        MaintenanceRecord record = recordMapper.selectById(id);
+        if (record == null) {
+            throw new RuntimeException("维护记录不存在");
+        }
+        recordMapper.deleteById(id);
+    }
+
+    @Transactional
     public void completeInspection(Long orderItemId, boolean qualified) {
         MaintenanceRecord r = new MaintenanceRecord();
         r.setOrderItemId(orderItemId);

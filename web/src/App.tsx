@@ -16,6 +16,7 @@ import AdminCategories from './pages/AdminCategories'
 import SystemConfig from './pages/SystemConfig'
 import Logs from './pages/Logs'
 import ProtectedRoute from './components/ProtectedRoute'
+import MaintenanceDashboard from './pages/MaintenanceDashboard'
 
 export default function App() {
   const token = useAuthStore(s => s.token)
@@ -41,6 +42,7 @@ export default function App() {
     { key: 'order', icon: <ShoppingCartOutlined />, label: <Link to="/order/new">下单</Link>, roles: ['admin', 'resident'] },
     { key: 'orders', icon: <FileTextOutlined />, label: <Link to="/orders">订单</Link>, roles: ['admin', 'resident', 'maintainer'] },
     { key: 'pickup', icon: <FileTextOutlined />, label: <Link to="/pickup/use">领取交付</Link>, roles: ['admin','maintainer'] },
+    { key: 'maint', icon: <ToolOutlined />, label: <Link to="/maintenance">维护工作台</Link>, roles: ['admin','maintainer'] },
     { key: 'admin', icon: <UserOutlined />, label: <Link to="/admin">管理</Link>, roles: ['admin'] },
     { key: 'users', icon: <UserOutlined />, label: <Link to="/admin/users">用户管理</Link>, roles: ['admin'] },
     { key: 'warehouses', icon: <ToolOutlined />, label: <Link to="/admin/warehouses">仓库管理</Link>, roles: ['admin'] },
@@ -59,6 +61,7 @@ export default function App() {
       '/order/new': '下单',
       '/orders': '订单',
       '/pickup/use': '领取交付',
+      '/maintenance': '维护工作台',
       '/admin': '管理',
       '/config': '参数',
       '/logs': '日志'
@@ -93,7 +96,7 @@ export default function App() {
   
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Layout.Sider width={250} theme="dark">
+      <Layout.Sider width={250} theme="dark" style={{ position: 'fixed', left: 0, top: 0, height: '100vh', zIndex: 1000 }}>
         <div style={{ 
           height: '64px', 
           display: 'flex', 
@@ -114,7 +117,7 @@ export default function App() {
           defaultSelectedKeys={[location.pathname === '/order/new' ? 'order' : location.pathname.substring(1)]}
         />
       </Layout.Sider>
-      <Layout>
+      <Layout style={{ marginLeft: 250 }}>
         <Layout.Header style={{ 
           display: 'flex', 
           justifyContent: 'space-between', 
@@ -137,6 +140,7 @@ export default function App() {
             
             <Route path="/pickup/use" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><PickupUse /></ProtectedRoute>} />
             <Route path="/pickup/use/:orderId" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><PickupUse /></ProtectedRoute>} />
+            <Route path="/maintenance" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><MaintenanceDashboard /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute requiredRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
           <Route path="/admin/warehouses" element={<ProtectedRoute requiredRoles={["admin"]}><AdminWarehouses /></ProtectedRoute>} />

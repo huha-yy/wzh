@@ -20,6 +20,13 @@ export default function Orders() {
   const [scheduleInspectorId, setScheduleInspectorId] = useState<number | null>(null)
   const [scheduleNote, setScheduleNote] = useState<string>('')
   const [inspectors, setInspectors] = useState<any[]>([])
+  const [repairOpen, setRepairOpen] = useState(false)
+  const [repairItemId, setRepairItemId] = useState<number | null>(null)
+  const [repairToolId, setRepairToolId] = useState<number | null>(null)
+  const [repairInspectorId, setRepairInspectorId] = useState<number | null>(null)
+  const [repairScheduledAt, setRepairScheduledAt] = useState<any>(null)
+  const [repairTitle, setRepairTitle] = useState<string>('repair')
+  const [repairDesc, setRepairDesc] = useState<string>('')
   const statusMap: any = { 0: '待审核', 1: '已通过', 2: '已领取', 3: '已申请归还', 4: '已安排验收', 5: '已完成', 6: '已取消' }
   const userProfile = useAuthStore(s => s.userProfile)
   const { hasAnyRole, hasRole } = useAuthStore()
@@ -144,6 +151,47 @@ export default function Orders() {
       message.error(msg || '操作失败')
     }
   }
+  const rejectAndOpenRepair = async (item: OrderItem) => {
+    await acceptItem(item.id, false)
+    setRepairItemId(item.id)
+    setRepairToolId(item.toolId)
+    setRepairScheduledAt(null)
+    setRepairTitle('repair')
+    setRepairDesc('')
+    setRepairOpen(true)
+    if (hasRole('admin')) {
+      try {
+        const res = await http.get('/admin/users', { params: { page: 1, size: 100, status: 1 } })
+        const list = (res.data.data.records || []).filter((u:any)=>Array.isArray(u.roles) && (u.roles.includes('maintainer') || u.roles.includes('admin')))
+        setInspectors(list.map((u:any)=>({ value: u.id, label: u.realName || u.username })))
+      } catch {}
+    }
+  }
+  const doCreateRepair = async () => {
+    if (!repairItemId || !repairToolId) { setRepairOpen(false); return }
+    try {
+      const body:any = {
+        orderItemId: repairItemId,
+        toolId: repairToolId,
+        type: 2,
+        title: repairTitle || 'repair',
+        description: repairDesc || undefined
+      }
+      if (hasRole('admin') && repairInspectorId) body.handledBy = repairInspectorId
+      if (repairScheduledAt) body.scheduledAt = repairScheduledAt.toISOString().slice(0,19)
+      await http.post('/maintenance', body)
+      message.success('已创建维修工单')
+      setRepairOpen(false)
+      setRepairItemId(null)
+      setRepairToolId(null)
+      setRepairInspectorId(null)
+      setRepairDesc('')
+      if (detail) openDetail(detail.order.id)
+    } catch (e:any) {
+      const msg = e?.response?.data?.message || e.message
+      message.error(msg || '创建失败')
+    }
+  }
 
   const cancelOrder = async (id: number) => {
     try {
@@ -221,7 +269,7 @@ export default function Orders() {
                   hasAnyRole(['admin','maintainer']) && detail.order.status === 4 ? (
                     <Space size={8}>
                       <Button size="small" onClick={() => acceptItem(i.id, true)}>验收合格</Button>
-                      <Button size="small" danger onClick={() => acceptItem(i.id, false)}>验收不合格</Button>
+                      <Button size="small" danger onClick={() => rejectAndOpenRepair(i)}>验收不合格</Button>
                     </Space>
                   ) : null
                 ) }
@@ -278,6 +326,24 @@ export default function Orders() {
           )}
           <Form.Item label="备注">
             <Input.TextArea rows={3} placeholder="可填写验收说明或注意事项" value={scheduleNote} onChange={e=>setScheduleNote(e.target.value)} />
+          </Form.Item>
+        </Form>
+      </Modal>
+      <Modal title="创建维修工单" open={repairOpen} onOk={doCreateRepair} onCancel={() => setRepairOpen(false)} destroyOnHidden>
+        <Form layout="vertical">
+          <Form.Item label="计划时间">
+            <DatePicker showTime style={{ width: '100%' }} value={repairScheduledAt} onChange={v => setRepairScheduledAt(v)} />
+          </Form.Item>
+          {hasRole('admin') && (
+            <Form.Item label="维修责任人">
+              <Select options={inspectors} placeholder="请选择维修责任人" value={repairInspectorId as any} onChange={(v)=>setRepairInspectorId(Number(v))} />
+            </Form.Item>
+          )}
+          <Form.Item label="标题">
+            <Input placeholder="例如：repair" value={repairTitle} onChange={e=>setRepairTitle(e.target.value)} />
+          </Form.Item>
+          <Form.Item label="描述">
+            <Input.TextArea rows={3} placeholder="可填写维修说明" value={repairDesc} onChange={e=>setRepairDesc(e.target.value)} />
           </Form.Item>
         </Form>
       </Modal>

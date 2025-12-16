@@ -2,7 +2,12 @@ server:
   port: 8080
 
 spring:
+  main:
+    # 强制告诉 Spring：我是个 Web 项目，必须启动 Tomcat！
+    # 如果缺包，它会立刻报错告诉你缺什么
+    web-application-type: servlet
   datasource:
+#    url: jdbc:mysql://community-mysql:3306/tools_sharing?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8&allowPublicKeyRetrieval=true
     url: jdbc:mysql://localhost:3306/tools_sharing?useSSL=false&serverTimezone=UTC&useUnicode=true&characterEncoding=utf8
     username: root
     password: 123666888

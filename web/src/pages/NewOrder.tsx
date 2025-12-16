@@ -3,7 +3,7 @@ import http from '../api/http'
 import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
 
-type Tool = { id: number; name: string; rentalPrice: number; warehouseId: number; status: number; stockAvailable?: number }
+type Tool = { id: number; name: string; rentalPrice: number; deposit?: number; warehouseId: number; status: number; stockAvailable?: number }
 type Category = { id: number; name: string }
 type Warehouse = { id: number; name: string }
 
@@ -20,7 +20,7 @@ export default function NewOrder() {
   const load = async () => {
     try {
       const res = await http.get('/tools', { params: { page: 1, size: 100, categoryId: filters.categoryId, warehouseId: filters.warehouseId, keyword: filters.keyword } })
-      setTools((res.data.data.records || []).map((r: any) => ({ id: r.id, name: r.name, rentalPrice: r.rentalPrice, warehouseId: r.warehouseId, status: r.status, stockAvailable: r.stockAvailable })))
+      setTools((res.data.data.records || []).map((r: any) => ({ id: r.id, name: r.name, rentalPrice: r.rentalPrice, deposit: r.deposit, warehouseId: r.warehouseId, status: r.status, stockAvailable: r.stockAvailable })))
     } catch {}
     try {
       const cats = await http.get('/categories')
@@ -59,13 +59,15 @@ export default function NewOrder() {
       const vals = await form.validateFields()
       const tool = tools.find(t => t.id === vals.toolId)
       const price = tool?.rentalPrice || 0
-      const est = price * vals.quantity * vals.days
+      const dep = tool?.deposit || 0
+      const est = price * vals.quantity * vals.days + dep * vals.quantity
       Modal.confirm({
         title: '确认提交订单',
         content: `工具：${tool?.name || vals.toolId}
 数量：${vals.quantity}
 天数：${vals.days}
-单价：¥${price.toFixed(2)}
+日租价：¥${price.toFixed(2)}
+押金（每件）：¥${dep.toFixed(2)}
 预计总金额：¥${est.toFixed(2)}`,
         okText: '确认提交',
         cancelText: '取消',
@@ -76,7 +78,7 @@ export default function NewOrder() {
   const selectedTool = tools.find(t => t.id === selectedToolId)
   const quantity = Form.useWatch('quantity', form)
   const days = Form.useWatch('days', form)
-  const total = (selectedTool?.rentalPrice || 0) * (Number(quantity) || 0) * (Number(days) || 0)
+  const total = ((selectedTool?.rentalPrice || 0) * (Number(quantity) || 0) * (Number(days) || 0)) + ((selectedTool?.deposit || 0) * (Number(quantity) || 0))
   return (
     <Card title="创建订单" style={{ maxWidth: 640 }}>
       <Space style={{ marginBottom: 12 }}>
@@ -96,7 +98,10 @@ export default function NewOrder() {
           <InputNumber min={1} />
         </Form.Item>
         <Divider style={{ margin: '8px 0' }} />
-        <div style={{ fontSize: 14 }}>单价：{selectedTool ? `¥${selectedTool.rentalPrice.toFixed(2)}` : '-'}，预计总金额：{selectedTool && quantity && days ? `¥${total.toFixed(2)}` : '-'}</div>
+        <div style={{ fontSize: 14 }}>
+          日租价：{selectedTool ? `¥${selectedTool.rentalPrice.toFixed(2)}` : '-'}，押金（每件）：{selectedTool ? `¥${(selectedTool.deposit || 0).toFixed(2)}` : '-'}，
+          预计总金额：{selectedTool && quantity && days ? `¥${total.toFixed(2)}` : '-'}
+        </div>
         <Form.Item>
           <Button type="primary" onClick={confirmSubmit}>提交订单</Button>
         </Form.Item>

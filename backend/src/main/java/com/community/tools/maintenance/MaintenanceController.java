@@ -96,6 +96,12 @@ public class MaintenanceController {
         return ApiResponse.ok(service.stats());
     }
 
+    @DeleteMapping("/records/{id}")
+    public ApiResponse<Void> delete(@PathVariable("id") Long id) {
+        service.deleteRecord(id);
+        return ApiResponse.ok(null);
+    }
+
     @lombok.Data
     public static class MaintStats {
         public java.util.Map<Integer, Long> typeCounts;

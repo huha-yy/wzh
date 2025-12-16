@@ -36,10 +36,16 @@ public class OrderService {
         if (tool.getStatus() == null || tool.getStatus() != 1) throw new RuntimeException("tool not available");
         if (tool.getStockAvailable() == null || tool.getStockAvailable() < quantity) throw new RuntimeException("stock not enough");
 
+        java.math.BigDecimal rentalPrice = tool.getRentalPrice() == null ? java.math.BigDecimal.ZERO : tool.getRentalPrice();
+        java.math.BigDecimal deposit = tool.getDeposit() == null ? java.math.BigDecimal.ZERO : tool.getDeposit();
+        java.math.BigDecimal rentAmount = rentalPrice.multiply(java.math.BigDecimal.valueOf(quantity)).multiply(java.math.BigDecimal.valueOf(rentalDays));
+        java.math.BigDecimal depositAmount = deposit.multiply(java.math.BigDecimal.valueOf(quantity));
+        java.math.BigDecimal totalAmount = rentAmount.add(depositAmount);
+
         RentalOrder order = new RentalOrder();
         order.setUserId(userId);
         order.setStatus(0);
-        order.setTotalAmount(unitPrice.multiply(BigDecimal.valueOf(quantity)).multiply(BigDecimal.valueOf(rentalDays)));
+        order.setTotalAmount(totalAmount);
         orderMapper.insert(order);
 
         RentalOrderItem item = new RentalOrderItem();
@@ -48,8 +54,8 @@ public class OrderService {
         item.setWarehouseId(warehouseId);
         item.setQuantity(quantity);
         item.setRentalDays(rentalDays);
-        item.setUnitPrice(unitPrice);
-        item.setAmount(unitPrice.multiply(BigDecimal.valueOf(quantity)).multiply(BigDecimal.valueOf(rentalDays)));
+        item.setUnitPrice(rentalPrice);
+        item.setAmount(rentAmount);
         item.setStatus(0);
         itemMapper.insert(item);
         return order;
