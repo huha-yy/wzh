@@ -4,6 +4,7 @@ CREATE TABLE IF NOT EXISTS users (
   password_hash VARCHAR(128) NOT NULL COMMENT '密码哈希',
   phone VARCHAR(32) NULL UNIQUE COMMENT '联系电话',
   real_name VARCHAR(64) NULL COMMENT '真实姓名',
+  address VARCHAR(256) NULL COMMENT '常用地址',
   status TINYINT UNSIGNED NOT NULL DEFAULT 1 COMMENT '账户状态：1启用 0禁用',
   created_by BIGINT UNSIGNED NULL COMMENT '创建者用户ID',
   updated_by BIGINT UNSIGNED NULL COMMENT '更新者用户ID',

@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAuthStore } from '../store/auth'
 import type { ColumnsType } from 'antd/es/table'
 
-type Tool = { id: number; name: string; modelSpec: string; rentalPrice: number; deposit: number; status: number; stockTotal: number; stockAvailable: number; warehouseId: number; categoryId?: number; description?: string }
+type Tool = { id: number; name: string; modelSpec: string; rentalPrice: number; deposit: number; status: number; stockTotal: number; stockAvailable: number; warehouseId: number; categoryId?: number; description?: string; borrowedByCurrentUser?: boolean }
 type Warehouse = { id: number; name: string }
 type Category = { id: number; name: string; parentId?: number }
 
@@ -162,8 +162,29 @@ export default function Tools() {
     { title: '押金', dataIndex: 'deposit' },
     // { title: '状态', dataIndex: 'status', render: (s:number) => <Tag color={s===1?'green':'red'}>{s===1?'上架':'下架'}</Tag> },
     { title: '使用状态', render: (_:any, r:Tool) => {
-      const label = (r.status!==1) ? '维修中' : ((r.stockAvailable ?? 0) > 0 ? '可借' : '已借完')
-      const color = label==='可借' ? 'green' : (label==='已借完' ? 'orange' : 'blue')
+      let label = '可借';
+      let color = 'green';
+
+      // 优先检查当前用户是否借了这个工具
+      if (r.borrowedByCurrentUser) {
+        label = '已借';
+        color = 'orange';
+      } else if (r.status === 3) {
+        label = '维修中';
+        color = 'blue';
+      } else if (r.status === 1) {
+        if ((r.stockAvailable ?? 0) > 0) {
+          label = '可借';
+          color = 'green';
+        } else {
+          label = '已借完';
+          color = 'orange';
+        }
+      } else {
+        label = '下架';
+        color = 'red';
+      }
+
       return <Tag color={color}>{label}</Tag>
     }},
     { title: '总库存', dataIndex: 'stockTotal' },

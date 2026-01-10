@@ -8,6 +8,7 @@ import Tools from './pages/Tools'
 import NewOrder from './pages/NewOrder'
 import Orders from './pages/Orders'
 import PickupUse from './pages/PickupUse'
+import Profile from './pages/Profile'
 import { useAuthStore } from './store/auth'
 import AdminDashboard from './pages/AdminDashboard'
 import AdminUsers from './pages/AdminUsers'
@@ -43,6 +44,7 @@ export default function App() {
     { key: 'orders', icon: <FileTextOutlined />, label: <Link to="/orders">订单</Link>, roles: ['admin', 'resident', 'maintainer'] },
     { key: 'pickup', icon: <FileTextOutlined />, label: <Link to="/pickup/use">领取交付</Link>, roles: ['admin','maintainer'] },
     { key: 'maint', icon: <ToolOutlined />, label: <Link to="/maintenance">维护工作台</Link>, roles: ['admin','maintainer'] },
+    { key: 'profile', icon: <UserOutlined />, label: <Link to="/profile">个人中心</Link>, roles: ['admin', 'resident', 'maintainer'] },
     { key: 'admin', icon: <UserOutlined />, label: <Link to="/admin">管理</Link>, roles: ['admin'] },
     { key: 'users', icon: <UserOutlined />, label: <Link to="/admin/users">用户管理</Link>, roles: ['admin'] },
     { key: 'warehouses', icon: <ToolOutlined />, label: <Link to="/admin/warehouses">仓库管理</Link>, roles: ['admin'] },
@@ -62,20 +64,21 @@ export default function App() {
       '/orders': '订单',
       '/pickup/use': '领取交付',
       '/maintenance': '维护工作台',
+      '/profile': '个人中心',
       '/admin': '管理',
       '/config': '参数',
       '/logs': '日志'
     }
-    
+
     const items = [
       { title: <Link to="/"><HomeOutlined /> 首页</Link> }
     ]
-    
+
     const path = location.pathname
     if (pathMap[path]) {
       items.push({ title: <span>{pathMap[path]}</span> })
     }
-    
+
     return items
   }
   
@@ -137,10 +140,11 @@ export default function App() {
             <Route path="/tools" element={<ProtectedRoute requiredRoles={["admin","resident","maintainer"]}><Tools /></ProtectedRoute>} />
             <Route path="/order/new" element={<ProtectedRoute requiredRoles={["admin","resident"]}><NewOrder /></ProtectedRoute>} />
             <Route path="/orders" element={<ProtectedRoute requiredRoles={["admin","resident","maintainer"]}><Orders /></ProtectedRoute>} />
-            
+
             <Route path="/pickup/use" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><PickupUse /></ProtectedRoute>} />
             <Route path="/pickup/use/:orderId" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><PickupUse /></ProtectedRoute>} />
             <Route path="/maintenance" element={<ProtectedRoute requiredRoles={["admin","maintainer"]}><MaintenanceDashboard /></ProtectedRoute>} />
+            <Route path="/profile" element={<ProtectedRoute requiredRoles={["admin","resident","maintainer"]}><Profile /></ProtectedRoute>} />
           <Route path="/admin" element={<ProtectedRoute requiredRoles={["admin"]}><AdminDashboard /></ProtectedRoute>} />
           <Route path="/admin/users" element={<ProtectedRoute requiredRoles={["admin"]}><AdminUsers /></ProtectedRoute>} />
           <Route path="/admin/warehouses" element={<ProtectedRoute requiredRoles={["admin"]}><AdminWarehouses /></ProtectedRoute>} />

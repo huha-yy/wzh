@@ -16,6 +16,7 @@ public class User {
     private String passwordHash;
     private String phone;
     private String realName;
+    private String address;
     private Integer status;
     private Long createdBy;
     private Long updatedBy;

@@ -100,5 +100,60 @@ public class UserService {
     public User getUserById(Long id) {
         return userMapper.selectById(id);
     }
+
+    /**
+     * 更新用户个人资料
+     */
+    public void updateProfile(String username, String realName, String phone, String address) {
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 如果修改了手机号，检查手机号是否已被其他用户使用
+        if (phone != null && !phone.trim().isEmpty() && !phone.equals(user.getPhone())) {
+            User phoneExists = userMapper.selectOne(new QueryWrapper<User>().eq("phone", phone));
+            if (phoneExists != null && !phoneExists.getId().equals(user.getId())) {
+                throw new RuntimeException("手机号已被使用");
+            }
+        }
+
+        // 更新用户信息
+        if (realName != null) {
+            user.setRealName(realName.trim().isEmpty() ? null : realName);
+        }
+        if (phone != null) {
+            user.setPhone(phone.trim().isEmpty() ? null : phone);
+        }
+        if (address != null) {
+            user.setAddress(address.trim().isEmpty() ? null : address);
+        }
+
+        userMapper.updateById(user);
+    }
+
+    /**
+     * 修改密码
+     */
+    public void changePassword(String username, String oldPassword, String newPassword) {
+        User user = userMapper.selectOne(new QueryWrapper<User>().eq("username", username));
+        if (user == null) {
+            throw new RuntimeException("用户不存在");
+        }
+
+        // 验证旧密码
+        if (!passwordEncoder.matches(oldPassword, user.getPasswordHash())) {
+            throw new RuntimeException("原密码错误");
+        }
+
+        // 验证新密码
+        if (newPassword == null || newPassword.trim().length() < 6) {
+            throw new RuntimeException("新密码长度至少为6位");
+        }
+
+        // 更新密码
+        user.setPasswordHash(passwordEncoder.encode(newPassword));
+        userMapper.updateById(user);
+    }
 }
 
