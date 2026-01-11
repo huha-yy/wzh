@@ -1,4 +1,4 @@
-import { Layout, Menu, Button, Breadcrumb } from 'antd'
+import { Layout, Menu, Button, Breadcrumb, ConfigProvider } from 'antd'
 import { useEffect } from 'react'
 import { Routes, Route, Link, Navigate, useNavigate, useLocation } from 'react-router-dom'
 import { HomeOutlined, ToolOutlined, ShoppingCartOutlined, FileTextOutlined, SettingOutlined, UserOutlined, LogoutOutlined } from '@ant-design/icons'
@@ -98,28 +98,56 @@ export default function App() {
   }
   
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      <Layout.Sider width={250} theme="dark" style={{ position: 'fixed', left: 0, top: 0, height: '100vh', zIndex: 1000 }}>
-        <div style={{ 
-          height: '64px', 
-          display: 'flex', 
-          alignItems: 'center', 
-          justifyContent: 'center', 
-          color: 'white', 
-          fontSize: '16px', 
-          fontWeight: 'bold',
-          borderBottom: '1px solid #f0f0f020'
-        }}>
-          社区共享工具管理系统
-        </div>
-        <Menu 
-          theme="dark" 
-          mode="inline" 
-          items={menuItems} 
-          style={{ border: 'none' }}
-          defaultSelectedKeys={[location.pathname === '/order/new' ? 'order' : location.pathname.substring(1)]}
-        />
-      </Layout.Sider>
+    <ConfigProvider
+      theme={{
+        components: {
+          Menu: {
+            itemSelectedBg: '#e6f4ff',
+            itemSelectedColor: '#1677ff',
+            itemHoverBg: '#f5f5f5',
+            itemHoverColor: '#1677ff',
+          }
+        }
+      }}
+    >
+      <Layout style={{ minHeight: '100vh' }}>
+        <Layout.Sider
+          width={250}
+          theme="light"
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            height: '100vh',
+            zIndex: 1000,
+            backgroundColor: '#fff',
+            boxShadow: '2px 0 8px rgba(0,0,0,0.05)'
+          }}
+        >
+          <div style={{
+            height: '64px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            color: '#001529',
+            fontSize: '16px',
+            fontWeight: 'bold',
+            borderBottom: '1px solid #f0f0f0',
+            padding: '0 16px'
+          }}>
+            社区共享工具管理系统
+          </div>
+          <Menu
+            theme="light"
+            mode="inline"
+            items={menuItems}
+            style={{
+              border: 'none',
+              backgroundColor: '#fff'
+            }}
+            defaultSelectedKeys={[location.pathname === '/order/new' ? 'order' : location.pathname.substring(1)]}
+          />
+        </Layout.Sider>
       <Layout style={{ marginLeft: 250 }}>
         <Layout.Header style={{ 
           display: 'flex', 
@@ -156,5 +184,6 @@ export default function App() {
         </Layout.Content>
       </Layout>
     </Layout>
+    </ConfigProvider>
   )
 }
